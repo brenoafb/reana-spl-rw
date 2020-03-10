@@ -24,7 +24,12 @@ public class SequenceDiagramTransformer {
 		root = null;
 	}
 
-	public RDGNode transformSD(SequenceDiagram s, String id) {
+	public RDGNode transformSD(SequenceDiagram s) {
+	    String id = s.getName();
+	    RDGNode reusableNode = RDGNode.getById(id);
+	    if (reusableNode != null) {
+	        return reusableNode;
+	    }
 		FDTMC f = new FDTMC();
 		f.setVariableName(s.getName() + "_s");
 		RDGNode answer = new RDGNode(id, s.getGuardCondition(), f);
@@ -79,7 +84,7 @@ public class SequenceDiagramTransformer {
 				SequenceDiagram onlySD = fr.getSequenceDiagrams()
 						.getFirst();
 				SequenceDiagramTransformer transformer = new SequenceDiagramTransformer();
-				RDGNode dependencyNode = transformer.transformSD(onlySD, RDGNode.getNextId());
+				RDGNode dependencyNode = transformer.transformSD(onlySD);
 				this.root.addDependency(dependencyNode);
 
 				String dependencyName = dependencyNode.getId();
