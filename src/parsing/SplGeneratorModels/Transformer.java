@@ -99,7 +99,7 @@ public class Transformer {
 				// TODO Throw exception if there is more than one associated SD
 				SequenceDiagram onlyAssociatedSD = a.getSequenceDiagrams().getFirst();
 				SequenceDiagramTransformer sdt = new SequenceDiagramTransformer();
-				RDGNode dependencyNode = sdt.transformSD(onlyAssociatedSD, onlyAssociatedSD.getName());
+				RDGNode dependencyNode = sdt.transformSD(onlyAssociatedSD);
 				this.root.addDependency(dependencyNode);
 
 				// An activity should have only one transition (to another activity or to a decision node).
