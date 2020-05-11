@@ -16,6 +16,7 @@ class CUtils {
     private static DynamicFunction<?> fcloseHandle;
 
     public static final String ACCESS_WRITE = "w";
+    public static final String ACCESS_READ = "r";
 
     static {
         try {

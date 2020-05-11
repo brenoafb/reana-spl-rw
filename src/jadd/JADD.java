@@ -8,6 +8,10 @@ import org.bridj.Pointer;
 import bigcudd.BigcuddLibrary;
 import bigcudd.BigcuddLibrary.Cudd_ReorderingType;
 import bigcudd.DdNode;
+import bigcudd.BigcuddLibrary.Dddmp_VarInfoType;
+import bigcudd.BigcuddLibrary.Dddmp_VarMatchType;
+import bigcudd.BigcuddLibrary.FILE;
+import bigcudd.BigcuddLibrary;
 
 /**
  * Interface to basic ADD operations.
@@ -79,13 +83,14 @@ public class JADD {
         }
 
         String[] orderedVariableNames = variableStore.getOrderedNames();
+        Pointer<FILE> fp = output.as(FILE.class);
         BigcuddLibrary.Cudd_DumpDot(dd,
                                     functions.length,
                                     Pointer.pointerToPointers(nodes),
                                     Pointer.pointerToCStrings(orderedVariableNames),
                                     Pointer.pointerToCStrings(functionNames),
-                                    output);
-
+                                    fp);
+		
         CUtils.fclose(output);
     }
 
@@ -110,4 +115,61 @@ public class JADD {
                 fileName);
     }
 
+    public void dumpDD(String functionName, ADD constTrue, String fileName) {
+
+		Pointer<?> output = CUtils.fopen(fileName, CUtils.ACCESS_WRITE);
+		
+		Pointer<Byte> ddname = Pointer.pointerToCString(functionName);
+		Pointer<DdNode> f = constTrue.getUnderlyingNode();
+		
+		String[] orderedVariableNames = variableStore.getOrderedNames();
+		Pointer<Pointer<Byte>> varnames = Pointer.pointerToCStrings(orderedVariableNames);
+		Pointer<Integer> auxids = null;
+		
+		Dddmp_VarInfoType varinfo = Dddmp_VarInfoType.DDDMP_VARIDS;
+		
+		Pointer<Byte> fname = Pointer.pointerToCString(fileName);
+		Pointer<FILE> fp = output.as(FILE.class);
+		
+		
+		BigcuddLibrary.Dddmp_cuddAddStore(dd, 
+											  ddname, 
+											  f, 
+											  varnames, 
+											  auxids, 
+											  BigcuddLibrary.DDDMP_MODE_TEXT, 
+											  varinfo, 
+											  fname, 
+											  fp);
+		
+		CUtils.fclose(output);
+	}
+    
+	public ADD readDD(String fileName) {
+		Pointer<?> output = CUtils.fopen(fileName, CUtils.ACCESS_READ);
+
+		String[] orderedVariableNames = variableStore.getOrderedNames();
+		
+		Pointer<FILE> fp = output.as(FILE.class);
+		IntValuedEnum<Dddmp_VarMatchType> varMatchMode = Dddmp_VarMatchType.DDDMP_VAR_MATCHIDS;
+		Pointer<Pointer<Byte>> varmatchnames = Pointer.pointerToCStrings(orderedVariableNames);
+		Pointer<Integer> varmatchauxids = null;
+		Pointer<Integer> varcomposeids = null;
+		int mode = BigcuddLibrary.DDDMP_MODE_TEXT;
+		Pointer<Byte> file = Pointer.pointerToCString(fileName);
+		Pointer<DdNode> node = BigcuddLibrary.Dddmp_cuddAddLoad(dd,
+				varMatchMode,
+				varmatchnames,
+				varmatchauxids,
+				varcomposeids,
+				mode,
+				file,
+				fp);
+
+
+		CUtils.fclose(output);
+		
+		return new ADD(dd, node, variableStore);
+	}
+    
 }
