@@ -100,6 +100,17 @@ public class FeatureFamilyBasedAnalyzer {
         // Sigma_v
         ADD reliability = solveFromMany(liftedExpressions);
         ADD result = featureModel.times(reliability);
+        
+        jadd.dumpDD("result", result, "result.add");
+        ADD resultRead = jadd.readDD("result.add");
+        
+        if (result.equals(resultRead)) {
+        	System.out.println("Read ADD matches previous ADD!");
+        } else {
+        	System.out.println("Read ADD DOES NOT match previous ADD!");
+        }
+
+        
         timeCollector.stopTimer(CollectibleTimers.EXPRESSION_SOLVING_TIME);
 
         if (dotOutput != null) {
